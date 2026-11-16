@@ -80,7 +80,7 @@ void main() {
     if (File(iconos).existsSync()) await _fuente('MaterialIcons', [iconos]);
   });
 
-  for (final tam in const [Size(1280, 720), Size(1366, 768), Size(1920, 1080)]) {
+  for (final tam in const [Size(1280, 640), Size(1366, 690), Size(1280, 720), Size(1920, 1010)]) {
     final s = '${tam.width.toInt()}x${tam.height.toInt()}';
 
     testWidgets('login $s', (t) async {
@@ -164,7 +164,31 @@ void main() {
       await _captura(t, 'tabla_credito_$s');
       await t.tap(find.text('Cerrar'));
       await _esperar(t, 500);
-      await t.tap(find.text('Cancelar').last);
+      if (find.text('Este crédito todavía no tiene abonos').evaluate().isNotEmpty) {
+        await t.ensureVisible(find.text('Registrar abono').last);
+        await _esperar(t, 300);
+        await t.tap(find.text('Registrar abono').last);
+        await _esperar(t, 2500);
+      }
+      final filaHist = find.textContaining('Cuota ').last;
+      await t.ensureVisible(filaHist);
+      await _esperar(t, 300);
+      await t.tap(filaHist);
+      await t.pump(const Duration(milliseconds: 60));
+      await t.tap(filaHist);
+      await _esperar(t, 800);
+      await _captura(t, 'editar_abono_$s');
+      expect(find.text('Actualizar abono'), findsOneWidget);
+      final previo = WidgetController.hitTestWarningShouldBeFatal;
+      WidgetController.hitTestWarningShouldBeFatal = true;
+      await t.tap(find.text('Cancelar').last, warnIfMissed: true);
+      WidgetController.hitTestWarningShouldBeFatal = previo;
+      await _esperar(t, 500);
+      if (find.text('ABONOS DE FACTURAS A CREDITO').evaluate().isNotEmpty) {
+        await t.tap(find.text('Cancelar').last);
+        await _esperar(t, 500);
+      }
+      await _captura(t, 'tras_editar_$s');
       await _esperar(t, 500);
       expect(fila, anything);
 

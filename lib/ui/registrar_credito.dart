@@ -157,161 +157,169 @@ class _DialogoRegistrarCreditoState extends State<DialogoRegistrarCredito> {
   @override
   Widget build(BuildContext context) {
     const g = SizedBox(width: 16);
-    const v = SizedBox(height: 14);
+    const v = SizedBox(height: 11);
     final cuota = Plan.montoCuota(_saldo, _nCuotas);
     final bloqueado = _seleccionado != null;
     return Modal(
       titulo: 'INGRESAR NUEVO CREDITO',
       ancho: 1120,
       onCerrar: _guardando ? () {} : null,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(22, 18, 22, 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 13,
-                  child: Seccion(
-                    titulo: 'DATOS DEL CREDITO',
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Campo(etiqueta: 'No. de factura:', controller: _factura, focus: _focusFactura, maxLength: 50, hint: 'N/A'),
-                              v,
-                              Campo(etiqueta: 'Descripcion:', controller: _descripcion, maxLength: 200),
-                              v,
-                              Campo(
-                                etiqueta: 'Monto total:',
-                                controller: _montoTotal,
-                                cifra: true,
-                                formatos: [montoFormato],
-                                maxLength: 15,
-                                hint: '0.00',
-                                onChanged: (_) => setState(() {}),
-                              ),
-                              v,
-                              Campo(
-                                etiqueta: 'Prima:',
-                                controller: _prima,
-                                cifra: true,
-                                formatos: [montoFormato],
-                                maxLength: 15,
-                                hint: '0.00',
-                                onChanged: (_) => setState(() {}),
-                              ),
-                              v,
-                              _soloLectura('Saldo pendiente:', _saldo > 0 ? plano2(_saldo) : ''),
-                            ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(22, 16, 22, 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 13,
+                    child: Seccion(
+                      titulo: 'DATOS DEL CREDITO',
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Campo(etiqueta: 'No. de factura:', controller: _factura, focus: _focusFactura, maxLength: 50, hint: 'N/A'),
+                                v,
+                                Campo(etiqueta: 'Descripcion:', controller: _descripcion, maxLength: 200),
+                                v,
+                                Campo(
+                                  etiqueta: 'Monto total:',
+                                  controller: _montoTotal,
+                                  cifra: true,
+                                  formatos: [montoFormato],
+                                  maxLength: 15,
+                                  hint: '0.00',
+                                  onChanged: (_) => setState(() {}),
+                                ),
+                                v,
+                                Campo(
+                                  etiqueta: 'Prima:',
+                                  controller: _prima,
+                                  cifra: true,
+                                  formatos: [montoFormato],
+                                  maxLength: 15,
+                                  hint: '0.00',
+                                  onChanged: (_) => setState(() {}),
+                                ),
+                                v,
+                                _soloLectura('Saldo pendiente:', _saldo > 0 ? plano2(_saldo) : ''),
+                              ],
+                            ),
                           ),
-                        ),
-                        g,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              CampoFecha(
-                                etiqueta: 'Fecha inicio credito:',
-                                valor: _fechaInicio,
-                                onChanged: (f) => setState(() => _fechaInicio = soloFecha(f)),
-                              ),
-                              v,
-                              CampoFecha(etiqueta: 'Fecha de vencimiento:', valor: _vencimiento),
-                              v,
-                              Campo(
-                                etiqueta: 'No. Cuotas:',
-                                controller: _cuotas,
-                                cifra: true,
-                                formatos: [soloDigitos],
-                                maxLength: 3,
-                                onChanged: (_) => setState(() {}),
-                              ),
-                              v,
-                              Combo<String>(
-                                etiqueta: 'Frecuencia:',
-                                valor: _frecuencia,
-                                opciones: const [('Semanal', 'Semanal'), ('Quincenal', 'Quincenal'), ('Mensual', 'Mensual')],
-                                onChanged: (x) => setState(() => _frecuencia = x ?? 'Semanal'),
-                              ),
-                              v,
-                              _soloLectura('Monto Cuota:', cuota > 0 ? plano2(cuota) : ''),
-                            ],
+                          g,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                CampoFecha(
+                                  etiqueta: 'Fecha inicio credito:',
+                                  valor: _fechaInicio,
+                                  onChanged: (f) => setState(() => _fechaInicio = soloFecha(f)),
+                                ),
+                                v,
+                                CampoFecha(etiqueta: 'Fecha de vencimiento:', valor: _vencimiento),
+                                v,
+                                Campo(
+                                  etiqueta: 'No. Cuotas:',
+                                  controller: _cuotas,
+                                  cifra: true,
+                                  formatos: [soloDigitos],
+                                  maxLength: 3,
+                                  onChanged: (_) => setState(() {}),
+                                ),
+                                v,
+                                Combo<String>(
+                                  etiqueta: 'Frecuencia:',
+                                  valor: _frecuencia,
+                                  opciones: const [('Semanal', 'Semanal'), ('Quincenal', 'Quincenal'), ('Mensual', 'Mensual')],
+                                  onChanged: (x) => setState(() => _frecuencia = x ?? 'Semanal'),
+                                ),
+                                v,
+                                _soloLectura('Monto Cuota:', cuota > 0 ? plano2(cuota) : ''),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                g,
-                Expanded(
-                  flex: 7,
-                  child: Seccion(
-                    titulo: 'DATOS DEL CLIENTE',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Boton(
-                                bloqueado ? 'Cambiar cliente' : 'Buscar cliente',
-                                icono: Icons.search_rounded,
-                                tipo: TipoBoton.primario,
-                                onPressed: _buscarCliente,
+                  g,
+                  Expanded(
+                    flex: 7,
+                    child: Seccion(
+                      titulo: 'DATOS DEL CLIENTE',
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Boton(
+                                  bloqueado ? 'Cambiar cliente' : 'Buscar cliente',
+                                  icono: Icons.search_rounded,
+                                  tipo: TipoBoton.primario,
+                                  onPressed: _buscarCliente,
+                                ),
                               ),
-                            ),
-                            if (bloqueado) ...[
-                              const SizedBox(width: 8),
-                              Tooltip(
-                                message: 'Quitar cliente seleccionado',
-                                child: Boton('', icono: Icons.person_remove_outlined, onPressed: _quitarCliente),
+                              if (bloqueado) ...[
+                                const SizedBox(width: 8),
+                                Tooltip(
+                                  message: 'Quitar cliente seleccionado',
+                                  child: Boton('', icono: Icons.person_remove_outlined, onPressed: _quitarCliente),
+                                ),
+                              ],
+                            ],
+                          ),
+                          v,
+                          Campo(etiqueta: 'Cliente:', controller: _cliente, maxLength: 50, soloLectura: bloqueado),
+                          v,
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: Campo(
+                                  etiqueta: 'Cod Cliente',
+                                  controller: _codCliente,
+                                  cifra: true,
+                                  formatos: [soloDigitos],
+                                  maxLength: 9,
+                                  soloLectura: bloqueado,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                flex: 5,
+                                child: Campo(etiqueta: 'Identidad / RTN:', controller: _rtn, maxLength: 50, soloLectura: bloqueado),
                               ),
                             ],
-                          ],
-                        ),
-                        v,
-                        Campo(etiqueta: 'Cliente:', controller: _cliente, maxLength: 50, soloLectura: bloqueado),
-                        v,
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: Campo(
-                                etiqueta: 'Cod Cliente',
-                                controller: _codCliente,
-                                cifra: true,
-                                formatos: [soloDigitos],
-                                maxLength: 9,
-                                soloLectura: bloqueado,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              flex: 5,
-                              child: Campo(etiqueta: 'Identidad / RTN:', controller: _rtn, maxLength: 50, soloLectura: bloqueado),
-                            ),
-                          ],
-                        ),
-                        v,
-                        Campo(etiqueta: 'Profesion u Oficio', controller: _profesion, maxLength: 50, soloLectura: bloqueado),
-                        v,
-                        Campo(etiqueta: 'Telefono:', controller: _telefono, maxLength: 50, soloLectura: bloqueado),
-                        v,
-                        Campo(etiqueta: 'Direccion:', controller: _direccion, maxLength: 200, lineas: 2, soloLectura: bloqueado),
-                      ],
+                          ),
+                          v,
+                          Campo(etiqueta: 'Profesion u Oficio', controller: _profesion, maxLength: 50, soloLectura: bloqueado),
+                          v,
+                          Campo(etiqueta: 'Telefono:', controller: _telefono, maxLength: 50, soloLectura: bloqueado),
+                          v,
+                          Campo(etiqueta: 'Direccion:', controller: _direccion, maxLength: 200, lineas: 2, soloLectura: bloqueado),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 18),
-            Row(
+          ),
+          Container(
+            padding: const EdgeInsets.fromLTRB(22, 12, 22, 16),
+            decoration: const BoxDecoration(
+              border: Border(top: BorderSide(color: C.lineaSuave)),
+            ),
+            child: Row(
               children: [
                 Expanded(
                   child: Text(
@@ -333,8 +341,8 @@ class _DialogoRegistrarCreditoState extends State<DialogoRegistrarCredito> {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

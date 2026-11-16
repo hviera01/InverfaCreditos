@@ -30,6 +30,7 @@ class _DialogoAbonosState extends State<DialogoAbonos> {
   final _recibo = TextEditingController();
   final _porcentaje = TextEditingController();
   final _focusMonto = FocusNode();
+  final _scroll = ScrollController();
   String _metodo = 'Efectivo';
   String _aplicarInteres = 'No';
   String _interesA = 'Saldo Pendiente';
@@ -49,6 +50,7 @@ class _DialogoAbonosState extends State<DialogoAbonos> {
     _recibo.dispose();
     _porcentaje.dispose();
     _focusMonto.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -104,6 +106,9 @@ class _DialogoAbonosState extends State<DialogoAbonos> {
       _metodo = const ['Efectivo', 'Tarjeta', 'Transferencia'].contains(m) ? m : _metodo;
       _recibo.text = (a.noRecibo == null || a.noRecibo!.trim().isEmpty) ? 'N/A' : a.noRecibo!;
     });
+    if (_scroll.hasClients && _scroll.offset > 0) {
+      _scroll.animateTo(0, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
+    }
     _focusMonto.requestFocus();
   }
 
@@ -210,26 +215,39 @@ class _DialogoAbonosState extends State<DialogoAbonos> {
             )
           : _det == null
           ? const SizedBox(height: 420, child: Cargando(texto: 'Cargando crédito...'))
-          : Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _infoFactura(),
-                  const SizedBox(height: 12),
-                  _infoAbono(),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text('HISTORIAL DE ABONOS', style: T.etiqueta(color: C.verde).copyWith(letterSpacing: 1.1)),
-                      const SizedBox(width: 12),
-                      Text('Doble clic sobre un abono para editarlo o eliminarlo', style: T.texto(12.5, color: C.tintaTenue)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Expanded(child: _historial()),
-                ],
-              ),
+          : LayoutBuilder(
+              builder: (context, cons) {
+                const altoFijo = 540.0;
+                const minimoHistorial = 230.0;
+                final holgado = cons.maxHeight >= altoFijo + minimoHistorial;
+                final contenido = Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _infoFactura(),
+                    const SizedBox(height: 12),
+                    _infoAbono(),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Text('HISTORIAL DE ABONOS', style: T.etiqueta(color: C.verde).copyWith(letterSpacing: 1.1)),
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: Text(
+                            'Doble clic sobre un abono para editarlo o eliminarlo',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: T.texto(12.5, color: C.tintaTenue),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (holgado) Expanded(child: _historial()) else SizedBox(height: minimoHistorial + 60, child: _historial()),
+                  ],
+                );
+                if (holgado) return Padding(padding: const EdgeInsets.fromLTRB(20, 16, 20, 18), child: contenido);
+                return SingleChildScrollView(controller: _scroll, padding: const EdgeInsets.fromLTRB(20, 16, 20, 18), child: contenido);
+              },
             ),
     );
   }
