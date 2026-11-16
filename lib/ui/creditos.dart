@@ -28,7 +28,6 @@ class _PantallaCreditosState extends State<PantallaCreditos> {
   String _estado = 'Debe';
   final _busqueda = TextEditingController();
   final _focusBusqueda = FocusNode();
-  final _rebote = Antirrebote();
 
   @override
   void initState() {
@@ -39,7 +38,6 @@ class _PantallaCreditosState extends State<PantallaCreditos> {
 
   @override
   void dispose() {
-    _rebote.cancelar();
     _busqueda.dispose();
     _focusBusqueda.dispose();
     super.dispose();
@@ -354,11 +352,10 @@ class _PantallaCreditosState extends State<PantallaCreditos> {
                 child: Campo(
                   controller: _busqueda,
                   focus: _focusBusqueda,
-                  hint: 'Cliente, factura, código...',
-                  onChanged: (_) => _rebote(() => setState(() => _aplicarFiltro())),
+                  hint: 'Escriba y presione Enter',
                   onSubmitted: (_) {
-                    _rebote.cancelar();
                     setState(() => _aplicarFiltro());
+                    _focusBusqueda.requestFocus();
                   },
                 ),
               ),
@@ -370,7 +367,6 @@ class _PantallaCreditosState extends State<PantallaCreditos> {
                   icono: Icons.backspace_outlined,
                   alto: 40,
                   onPressed: () {
-                    _rebote.cancelar();
                     _busqueda.clear();
                     setState(() => _aplicarFiltro());
                     _focusBusqueda.requestFocus();

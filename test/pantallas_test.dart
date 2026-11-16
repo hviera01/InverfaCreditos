@@ -133,10 +133,13 @@ void main() {
       await t.tap(find.text('Debe').last);
       await _esperar(t, 500);
       await t.enterText(find.byType(TextField).first, '13673');
+      await t.testTextInput.receiveAction(TextInputAction.done);
       await _esperar(t, 1000);
       await t.enterText(find.byType(TextField).first, 'EQUIV');
+      await t.testTextInput.receiveAction(TextInputAction.done);
       await _esperar(t, 1000);
       await t.enterText(find.byType(TextField).first, '');
+      await t.testTextInput.receiveAction(TextInputAction.done);
       await _esperar(t, 1000);
 
       final fila = find.text('2,250.00', skipOffstage: false);

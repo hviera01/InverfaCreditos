@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -9,18 +8,8 @@ import 'ui/tema.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-  const opciones = WindowOptions(
-    title: 'COMERCIAL INVERFA - Créditos',
-    minimumSize: Size(1280, 720),
-    size: Size(1440, 860),
-    center: true,
-    backgroundColor: C.papel,
-  );
-  await windowManager.waitUntilReadyToShow(opciones, () async {
-    await windowManager.maximize();
-    await windowManager.show();
-    await windowManager.focus();
-  });
+  await windowManager.setTitle('COMERCIAL INVERFA - Créditos');
+  await windowManager.setMinimumSize(const Size(1280, 640));
   runApp(const AppInverfa());
 }
 
@@ -40,17 +29,9 @@ class AppInverfa extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      builder: (context, child) => CallbackShortcuts(
-        bindings: {
-          const SingleActivator(LogicalKeyboardKey.f11): () async {
-            final f = await windowManager.isFullScreen();
-            await windowManager.setFullScreen(!f);
-          },
-        },
-        child: MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
-          child: child!,
-        ),
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+        child: child!,
       ),
       home: const PantallaLogin(),
     );

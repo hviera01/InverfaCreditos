@@ -9,6 +9,8 @@ import 'importar.dart';
 import 'tema.dart';
 import 'widgets.dart';
 
+const maxFilasClientes = 300;
+
 class PantallaClientes extends StatefulWidget {
   const PantallaClientes({super.key});
   @override
@@ -18,6 +20,7 @@ class PantallaClientes extends StatefulWidget {
 class _PantallaClientesState extends State<PantallaClientes> {
   List<Cliente> _todos = [];
   List<Cliente> _visibles = [];
+  List<Cliente> _coincidencias = [];
   int? _sel;
   bool _cargando = false;
   bool _guardando = false;
@@ -25,7 +28,6 @@ class _PantallaClientesState extends State<PantallaClientes> {
   String? _error;
   String _campoBusqueda = 'Todo';
   final _busqueda = TextEditingController();
-  final _rebote = Antirrebote();
 
   int _id = 0;
   final _cod = TextEditingController();
@@ -45,7 +47,6 @@ class _PantallaClientesState extends State<PantallaClientes> {
 
   @override
   void dispose() {
-    _rebote.cancelar();
     for (final c in [_busqueda, _cod, _dni, _nombre, _profesion, _telefono, _direccion]) {
       c.dispose();
     }
@@ -118,6 +119,8 @@ class _PantallaClientesState extends State<PantallaClientes> {
               .toList();
       }
     }
+    _coincidencias = _visibles;
+    if (_visibles.length > maxFilasClientes) _visibles = _visibles.sublist(0, maxFilasClientes);
     if (mantenerId != null) {
       final i = _visibles.indexWhere((c) => c.idCliente == mantenerId);
       _sel = i >= 0 ? i : null;
@@ -238,7 +241,7 @@ class _PantallaClientesState extends State<PantallaClientes> {
   ];
 
   Future<void> _excel() async {
-    if (_visibles.isEmpty) {
+    if (_coincidencias.isEmpty) {
       await avisar(context, 'No hay registros para exportar');
       return;
     }
@@ -247,7 +250,7 @@ class _PantallaClientesState extends State<PantallaClientes> {
         nombreArchivo: 'Clientes_ComercialInverfa_${marcaTiempo()}.xlsx',
         hoja: 'Clientes',
         encabezados: _encabezados,
-        filas: [for (final c in _visibles) _fila(c)],
+        filas: [for (final c in _coincidencias) _fila(c)],
       );
       if (r != null && mounted) exito(context, 'Reporte generado correctamente');
     } catch (e) {
@@ -256,7 +259,7 @@ class _PantallaClientesState extends State<PantallaClientes> {
   }
 
   Future<void> _pdf() async {
-    if (_visibles.isEmpty) {
+    if (_coincidencias.isEmpty) {
       await avisar(context, 'No hay registros para exportar');
       return;
     }
@@ -265,7 +268,7 @@ class _PantallaClientesState extends State<PantallaClientes> {
         nombreArchivo: 'Clientes_ComercialInverfa_${marcaTiempo()}.pdf',
         subtitulo: 'REPORTE DE CLIENTES',
         encabezados: _encabezados,
-        filas: [for (final c in _visibles) _fila(c).map((e) => e.toString()).toList()],
+        filas: [for (final c in _coincidencias) _fila(c).map((e) => e.toString()).toList()],
         horizontal: false,
       );
       if (r != null && mounted) exito(context, 'Reporte PDF generado correctamente');
@@ -432,10 +435,7 @@ class _PantallaClientesState extends State<PantallaClientes> {
                   ('Telefono', 'Telefono'),
                   ('Estado', 'Estado'),
                 ],
-                onChanged: (x) => setState(() {
-                  _campoBusqueda = x ?? 'Todo';
-                  _filtrar();
-                }),
+                onChanged: (x) => setState(() => _campoBusqueda = x ?? 'Todo'),
               ),
             ),
             const SizedBox(width: 8),
@@ -443,11 +443,8 @@ class _PantallaClientesState extends State<PantallaClientes> {
               width: 220,
               child: Campo(
                 controller: _busqueda,
-                onChanged: (_) => _rebote(() => setState(() => _filtrar())),
-                onSubmitted: (_) {
-                  _rebote.cancelar();
-                  setState(() => _filtrar());
-                },
+                hint: 'Escriba y presione Enter',
+                onSubmitted: (_) => setState(() => _filtrar()),
               ),
             ),
             const SizedBox(width: 8),
@@ -458,10 +455,7 @@ class _PantallaClientesState extends State<PantallaClientes> {
                 icono: Icons.search_rounded,
                 tipo: TipoBoton.primario,
                 alto: 40,
-                onPressed: () {
-                  _rebote.cancelar();
-                  setState(() => _filtrar());
-                },
+                onPressed: () => setState(() => _filtrar()),
               ),
             ),
             const SizedBox(width: 6),
@@ -472,7 +466,6 @@ class _PantallaClientesState extends State<PantallaClientes> {
                 icono: Icons.backspace_outlined,
                 alto: 40,
                 onPressed: () {
-                  _rebote.cancelar();
                   _busqueda.clear();
                   setState(() {
                     _campoBusqueda = 'Todo';
@@ -489,7 +482,11 @@ class _PantallaClientesState extends State<PantallaClientes> {
         Expanded(child: _tabla()),
         const SizedBox(height: 6),
         Text(
-          _cargando && _todos.isEmpty ? '' : '${_visibles.length} de ${_todos.length} clientes',
+          _cargando && _todos.isEmpty
+              ? ''
+              : _coincidencias.length > _visibles.length
+              ? 'Mostrando ${_visibles.length} de ${_coincidencias.length} clientes · escriba y presione Enter para buscar'
+              : '${_visibles.length} de ${_todos.length} clientes',
           maxLines: 1,
           style: T.texto(12.5, color: C.tintaSuave),
         ),

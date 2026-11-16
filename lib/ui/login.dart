@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:window_manager/window_manager.dart';
 
 import '../data/repo.dart';
 import '../db/db.dart';
@@ -197,17 +196,6 @@ class _PantallaLoginState extends State<PantallaLogin> with SingleTickerProvider
       color: C.papel,
       child: Stack(
         children: [
-          Positioned(
-            top: 18,
-            right: 18,
-            child: Tooltip(
-              message: 'Pantalla completa (F11)',
-              child: IconButton(
-                onPressed: () async => windowManager.setFullScreen(!await windowManager.isFullScreen()),
-                icon: const Icon(Icons.fullscreen_rounded, color: C.tintaSuave, size: 24),
-              ),
-            ),
-          ),
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),

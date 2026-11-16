@@ -109,6 +109,7 @@ DELETE FROM CLIENTE WHERE Documento IN ('555111222','555333444');''');
     expect(parseDecimal(v[2]), 2500);
 
     await t.enterText(find.byType(TextField).first, 'APP-900');
+    await t.testTextInput.receiveAction(TextInputAction.done);
     await _pausa(t, 800);
     await t.tap(find.text('CLIENTE APP REAL'));
     await _pausa(t);
@@ -189,6 +190,7 @@ DELETE FROM CLIENTE WHERE Documento IN ('555111222','555333444');''');
     await _hasta(t, find.text('Cliente registrado correctamente'));
     await _sinOverlay(t);
     await t.enterText(find.byType(TextField).last, '555333444');
+    await t.testTextInput.receiveAction(TextInputAction.done);
     await _pausa(t, 800);
     await t.tap(find.text('CLIENTE APP DOS').last);
     await _pausa(t);

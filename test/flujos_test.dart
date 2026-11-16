@@ -146,6 +146,7 @@ void main() {
     final idVenta = int.parse(v[0]!);
 
     await t.enterText(find.byType(TextField).first, 'UI-777');
+    await t.testTextInput.receiveAction(TextInputAction.done);
     await _calma(t, 800);
     await t.tap(find.text('CLIENTE FLUJO UI'));
     await _calma(t, 300);
@@ -228,6 +229,7 @@ void main() {
     await t.tap(find.text('LIMPIAR'));
     await _calma(t);
     await t.enterText(find.byType(TextField).last, 'CLIENTE PANTALLA');
+    await t.testTextInput.receiveAction(TextInputAction.done);
     await _calma(t, 800);
     await t.tap(find.text('CLIENTE PANTALLA').last);
     await _calma(t, 300);
@@ -242,6 +244,7 @@ void main() {
     expect(int.parse(v[2]!), greaterThan(0));
 
     await t.enterText(find.byType(TextField).last, '555333444');
+    await t.testTextInput.receiveAction(TextInputAction.done);
     await _calma(t, 800);
     await t.tap(find.text('CLIENTE PANTALLA EDITADO').last);
     await _calma(t, 300);
@@ -255,5 +258,55 @@ void main() {
     await t.runAsync(() async {
       await Db.ejecutar("SET NOCOUNT ON; DELETE FROM CLIENTE WHERE Documento='555111222';");
     });
+  });
+
+  testWidgets('buscadores filtran solo con Enter y clientes muestra máximo 300', (t) async {
+    t.view.physicalSize = const Size(1366, 768);
+    t.view.devicePixelRatio = 1;
+    addTearDown(t.view.reset);
+    List<String?> c = [];
+    await t.runAsync(() async {
+      c = await _fila("SELECT TOP 1 Documento, (SELECT COUNT(*) FROM CLIENTE) FROM CLIENTE WHERE LEN(Documento) >= 8 AND Documento NOT LIKE '%[^0-9]%' GROUP BY Documento HAVING COUNT(*) = 1 ORDER BY Documento");
+    });
+    final dni = c[0]!;
+    final totalClientes = int.parse(c[1]!);
+    expect(totalClientes, greaterThan(300));
+
+    await t.pumpWidget(_app(PantallaPrincipal(usuario: usuario)));
+    await _hasta(t, find.text('TOTAL CREDITO PENDIENTE'));
+    await _hasta(t, find.textContaining(' créditos'));
+    await _calma(t, 2000);
+    String pie(String sufijo) => (t.widget(find.textContaining(sufijo).first) as Text).data!;
+    final antes = pie(' créditos');
+    expect(antes.startsWith('0 de'), isFalse);
+
+    await t.enterText(find.byType(TextField).first, 'ZZQXNOEXISTE');
+    await _calma(t, 1500);
+    expect(pie(' créditos'), antes);
+    await t.testTextInput.receiveAction(TextInputAction.done);
+    await _calma(t, 500);
+    expect(pie(' créditos'), startsWith('0 de'));
+    expect(find.text('No hay créditos para mostrar'), findsOneWidget);
+    await t.enterText(find.byType(TextField).first, '');
+    await t.testTextInput.receiveAction(TextInputAction.done);
+    await _calma(t, 500);
+    expect(pie(' créditos'), antes);
+
+    await t.tap(find.text('CLIENTES'));
+    await _hasta(t, find.text('DETALLE CLIENTE'));
+    await _hasta(t, find.textContaining('Mostrando 300 de $totalClientes clientes'));
+    await t.enterText(find.byType(TextField).last, dni);
+    await _calma(t, 1500);
+    expect(find.textContaining('Mostrando 300 de $totalClientes clientes'), findsOneWidget);
+    await t.testTextInput.receiveAction(TextInputAction.done);
+    await _calma(t, 500);
+    expect(find.text('1 de $totalClientes clientes'), findsOneWidget);
+    await t.tap(find.byIcon(Icons.backspace_outlined).last);
+    await _calma(t, 500);
+    expect(find.textContaining('Mostrando 300 de $totalClientes clientes'), findsOneWidget);
+    await t.enterText(find.byType(TextField).last, dni);
+    await t.tap(find.byIcon(Icons.search_rounded).last);
+    await _calma(t, 500);
+    expect(find.text('1 de $totalClientes clientes'), findsOneWidget);
   });
 }

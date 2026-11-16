@@ -30,7 +30,6 @@ class _DialogoBuscarClienteState extends State<DialogoBuscarCliente> {
   String _campo = 'Todo';
   final _texto = TextEditingController();
   final _focus = FocusNode();
-  final _rebote = Antirrebote();
 
   @override
   void initState() {
@@ -40,7 +39,6 @@ class _DialogoBuscarClienteState extends State<DialogoBuscarCliente> {
 
   @override
   void dispose() {
-    _rebote.cancelar();
     _texto.dispose();
     _focus.dispose();
     super.dispose();
@@ -127,10 +125,7 @@ class _DialogoBuscarClienteState extends State<DialogoBuscarCliente> {
                       ('Documento', 'No. Documento'),
                       ('NombreCompleto', 'Nombre completo'),
                     ],
-                    onChanged: (v) => setState(() {
-                      _campo = v ?? 'Todo';
-                      _filtrar();
-                    }),
+                    onChanged: (v) => setState(() => _campo = v ?? 'Todo'),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -138,16 +133,32 @@ class _DialogoBuscarClienteState extends State<DialogoBuscarCliente> {
                   child: Campo(
                     controller: _texto,
                     focus: _focus,
-                    hint: 'Escriba y presione Enter, o use las flechas',
-                    onChanged: (_) => _rebote(() => setState(_filtrar)),
+                    hint: 'Escriba y presione Enter',
                     onSubmitted: (_) {
-                      _rebote.cancelar();
                       setState(_filtrar);
-                      if (_visibles.length == 1) _elegir(0);
+                      if (_visibles.length == 1) {
+                        _elegir(0);
+                      } else {
+                        _focus.requestFocus();
+                      }
                     },
                   ),
                 ),
                 const SizedBox(width: 8),
+                Tooltip(
+                  message: 'Buscar',
+                  child: Boton(
+                    '',
+                    icono: Icons.search_rounded,
+                    tipo: TipoBoton.primario,
+                    alto: 40,
+                    onPressed: () {
+                      setState(_filtrar);
+                      _focus.requestFocus();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 6),
                 Tooltip(
                   message: 'Limpiar búsqueda',
                   child: Boton(
